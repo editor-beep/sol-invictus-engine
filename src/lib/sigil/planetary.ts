@@ -140,8 +140,10 @@ export function planetOfDay(date = new Date()): Planet {
 // Chaldean order for planetary hours.
 const CHALDEAN: PlanetKey[] = ["saturn", "jupiter", "mars", "sun", "venus", "mercury", "moon"];
 
+// Classical planetary hours run from sunrise to sunset, not midnight.
+// This uses equal civil hours as an approximation — accurate to within 1-2 hours
+// at mid-latitudes but drifts near solstices and at extreme latitudes.
 export function planetOfHour(date = new Date()): Planet {
-  // Approximation: equal hours from local midnight.
   const dayRuler = DOW_TO_PLANET[date.getDay()];
   const startIdx = CHALDEAN.indexOf(dayRuler);
   const hour = date.getHours();

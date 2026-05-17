@@ -56,8 +56,10 @@ Return:
 - charge: one sentence on how and when to charge the sigil (use planetary day or hour).`;
 
     try {
+      const timeout = AbortSignal.timeout(20_000);
       const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
+        signal: timeout,
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",

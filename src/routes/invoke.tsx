@@ -39,7 +39,7 @@ function InvokePage() {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
-    let alive = true;
+    const controller = new AbortController();
     setLoading(true);
     setError(null);
     setIncantation(null);
@@ -58,23 +58,28 @@ function InvokePage() {
       },
     })
       .then((res) => {
-        if (!alive) return;
+        if (controller.signal.aborted) return;
         setIncantation(res);
       })
       .catch((e) => {
-        if (!alive) return;
+        if (controller.signal.aborted) return;
         setError(e?.message ?? "The voice failed.");
       })
-      .finally(() => alive && setLoading(false));
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
     saveToGrimoire(reading);
     return () => {
-      alive = false;
+      controller.abort();
     };
   }, [reading, callIncantation]);
 
   const downloadSVG = () => {
-    const svg = document.getElementById(`sigil-${reading.hash}`);
-    if (!svg) return;
+    const svg = svgRef.current;
+    if (!svg) {
+      setError("Sigil not ready for download.");
+      return;
+    }
     const xml = new XMLSerializer().serializeToString(svg);
     const blob = new Blob([xml], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
@@ -85,25 +90,39 @@ function InvokePage() {
     URL.revokeObjectURL(url);
   };
 
-  const downloadPNG = async () => {
-    const svg = document.getElementById(`sigil-${reading.hash}`) as SVGSVGElement | null;
-    if (!svg) return;
+  const downloadPNG = () => {
+    const svg = svgRef.current;
+    if (!svg) {
+      setError("Sigil not ready for download.");
+      return;
+    }
     const xml = new XMLSerializer().serializeToString(svg);
     const blob = new Blob([xml], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const img = new Image();
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      setError("Could not render sigil image.");
+    };
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const size = 1200;
       canvas.width = size;
       canvas.height = size;
       const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+      if (!ctx) {
+        URL.revokeObjectURL(url);
+        setError("Canvas unavailable — try SVG instead.");
+        return;
+      }
       ctx.fillStyle = "oklch(0.13 0.012 60)";
       ctx.fillRect(0, 0, size, size);
       ctx.drawImage(img, 0, 0, size, size);
       canvas.toBlob((b) => {
-        if (!b) return;
+        if (!b) {
+          setError("Could not encode PNG.");
+          return;
+        }
         const u = URL.createObjectURL(b);
         const a = document.createElement("a");
         a.href = u;
@@ -130,14 +149,13 @@ function InvokePage() {
         <div className="flex flex-col items-center">
           <div className="relative">
             <div className="absolute inset-0 -z-10 rounded-full bg-gold/5 blur-3xl" />
-            <div ref={(el) => { if (el) svgRef.current = el.querySelector("svg"); }}>
-              <SigilSVG
-                id={`sigil-${reading.hash}`}
-                reading={reading}
-                size={460}
-                animate
-              />
-            </div>
+            <SigilSVG
+              id={`sigil-${reading.hash}`}
+              reading={reading}
+              size={460}
+              animate
+              svgRef={svgRef}
+            />
           </div>
           <p className="mt-2 text-center text-xs tracking-[0.3em] uppercase text-parchment/50">
             Seal {reading.hash}

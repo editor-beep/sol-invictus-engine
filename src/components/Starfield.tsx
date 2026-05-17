@@ -1,6 +1,5 @@
-// A faint drifting starfield rendered in SVG — pure decoration, no JS animation cost.
-export function Starfield({ count = 80 }: { count?: number }) {
-  const stars = Array.from({ length: count }, (_, i) => {
+function buildStars(count: number) {
+  return Array.from({ length: count }, (_, i) => {
     // Deterministic pseudo-random so SSR matches client.
     const x = ((i * 9301 + 49297) % 233280) / 233280;
     const y = ((i * 6271 + 12345) % 233280) / 233280;
@@ -8,6 +7,13 @@ export function Starfield({ count = 80 }: { count?: number }) {
     const o = 0.15 + (((i * 13) % 100) / 100) * 0.6;
     return { x: x * 100, y: y * 100, r, o };
   });
+}
+
+const DEFAULT_STARS = buildStars(80);
+
+// A faint drifting starfield rendered in SVG — pure decoration, no JS animation cost.
+export function Starfield({ count = 80 }: { count?: number }) {
+  const stars = count === 80 ? DEFAULT_STARS : buildStars(count);
   return (
     <svg
       aria-hidden

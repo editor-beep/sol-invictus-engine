@@ -28,7 +28,7 @@ function GrimoirePage() {
 
   const remove = (intention: string) => {
     removeFromGrimoire(intention);
-    setItems(loadGrimoire());
+    setItems((prev) => prev.filter((item) => item.intention !== intention));
   };
 
   return (
@@ -43,6 +43,17 @@ function GrimoirePage() {
           the silent ether.
         </p>
       </header>
+
+      {!hydrated && (
+        <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-sm border border-gold/10 bg-black/30 p-5 h-72 animate-pulse"
+            />
+          ))}
+        </div>
+      )}
 
       {hydrated && items.length === 0 && (
         <div className="mt-20 text-center">
