@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 import type { Reading } from "./compose";
 
 type Props = {
@@ -6,16 +7,23 @@ type Props = {
   animate?: boolean;
   className?: string;
   id?: string;
+  svgRef?: RefObject<SVGSVGElement | null>;
 };
 
+const CX = 200;
+const CY = 200;
+const OUTER_R = 180;
+const INNER_R = 150;
+const KAMEA_SIZE = 180;
+
 // Renders the full sigil as an SVG. 400x400 viewBox; centered at (200, 200).
-export function SigilSVG({ reading, size = 420, animate = true, className, id }: Props) {
+export function SigilSVG({ reading, size = 420, animate = true, className, id, svgRef }: Props) {
   const { sigil } = reading;
-  const cx = 200;
-  const cy = 200;
-  const outerR = 180;
-  const innerR = 150;
-  const kameaSize = 180;
+  const cx = CX;
+  const cy = CY;
+  const outerR = OUTER_R;
+  const innerR = INNER_R;
+  const kameaSize = KAMEA_SIZE;
   const cell = kameaSize / sigil.kameaOrder;
   const kameaOriginX = cx - kameaSize / 2;
   const kameaOriginY = cy - kameaSize / 2;
@@ -33,12 +41,16 @@ export function SigilSVG({ reading, size = 420, animate = true, className, id }:
   return (
     <svg
       id={id}
+      ref={svgRef}
       viewBox="0 0 400 400"
       width={size}
       height={size}
       className={className}
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label={`Sigil for "${reading.intention}" — ${reading.planet.name}, ${reading.tarot.name}, ${reading.sephira.name}`}
     >
+      <title>Sigil for "{reading.intention}"</title>
       <defs>
         <radialGradient id={`bg-${reading.hash}`} cx="50%" cy="50%" r="55%">
           <stop offset="0%" stopColor={sigil.sephiraColor} stopOpacity="0.18" />
