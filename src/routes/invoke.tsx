@@ -72,7 +72,7 @@ function InvokePage() {
     return () => {
       controller.abort();
     };
-  }, [reading, callIncantation]);
+  }, [reading]); // callIncantation is a stable module-level ref from useServerFn
 
   const downloadSVG = () => {
     const svg = svgRef.current;
