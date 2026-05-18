@@ -38,6 +38,23 @@ export function SigilSVG({ reading, size = 420, animate = true, className, id, s
   const first = points[0];
   const last = points[points.length - 1];
 
+  // Track which cells have already been visited so we can draw loop marks on repeats.
+  const visitedKeys = new Set<string>();
+  const loopPoints: { x: number; y: number }[] = [];
+  for (const p of points) {
+    const key = `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+    if (visitedKeys.has(key)) loopPoints.push(p);
+    else visitedKeys.add(key);
+  }
+
+  // Kamea grid lines — horizontal and vertical cell boundaries.
+  const gridLines: { x1: number; y1: number; x2: number; y2: number }[] = [];
+  for (let i = 0; i <= sigil.kameaOrder; i++) {
+    const offset = kameaOriginX + i * cell;
+    gridLines.push({ x1: offset, y1: kameaOriginY, x2: offset, y2: kameaOriginY + kameaSize });
+    gridLines.push({ x1: kameaOriginX, y1: kameaOriginY + i * cell, x2: kameaOriginX + kameaSize, y2: kameaOriginY + i * cell });
+  }
+
   return (
     <svg
       id={id}
@@ -74,6 +91,13 @@ export function SigilSVG({ reading, size = 420, animate = true, className, id, s
 
       {/* Inner glow */}
       <circle cx={cx} cy={cy} r={outerR} fill={`url(#bg-${reading.hash})`} />
+
+      {/* Kamea grid — faint cell boundaries showing the square the sigil was traced on */}
+      <g stroke="oklch(0.78 0.13 80)" strokeWidth={0.4} opacity={0.07} fill="none">
+        {gridLines.map((l, i) => (
+          <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />
+        ))}
+      </g>
 
       <g
         className={animate ? "sigil-draw" : ""}
@@ -145,6 +169,18 @@ export function SigilSVG({ reading, size = 420, animate = true, className, id, s
           {/* Turn dots at intermediate vertices */}
           {points.slice(1, -1).map((p, i) => (
             <circle key={i} cx={p.x} cy={p.y} r={1.3} fill={sigil.accentColor} stroke="none" />
+          ))}
+          {/* Loop marks at cells visited more than once — traditional practice */}
+          {loopPoints.map((p, i) => (
+            <ellipse
+              key={i}
+              cx={p.x}
+              cy={p.y}
+              rx={cell * 0.28}
+              ry={cell * 0.18}
+              strokeWidth={1.2}
+              fill="none"
+            />
           ))}
         </g>
 

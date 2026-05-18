@@ -6,10 +6,18 @@ const LETTER_VALUE: Record<string, number> = {
   s: 1, t: 2, u: 3, v: 4, w: 5, x: 6, y: 7, z: 8,
 };
 
+// Simple ordinal values A=1..Z=26, used for kamea cell lookup so the trace
+// can reach the full range of each square (not just cells 1-9).
+const LETTER_ORDINAL: Record<string, number> = {
+  a: 1,  b: 2,  c: 3,  d: 4,  e: 5,  f: 6,  g: 7,  h: 8,  i: 9,
+  j: 10, k: 11, l: 12, m: 13, n: 14, o: 15, p: 16, q: 17, r: 18,
+  s: 19, t: 20, u: 21, v: 22, w: 23, x: 24, y: 25, z: 26,
+};
+
 const VOWELS = new Set(["a", "e", "i", "o", "u"]);
 
 export type NumerologyResult = {
-  letters: { char: string; value: number }[];
+  letters: { char: string; value: number; ordinal: number; isVowel: boolean }[];
   rawSum: number;
   reductionSteps: number[];
   root: number;          // 1-9, or 11/22/33
@@ -22,14 +30,15 @@ export type NumerologyResult = {
 
 export function analyzeIntention(text: string): NumerologyResult {
   const cleaned = text.toLowerCase();
-  const letters: { char: string; value: number }[] = [];
+  const letters: { char: string; value: number; ordinal: number; isVowel: boolean }[] = [];
   let vowels = 0;
   let consonants = 0;
   for (const ch of cleaned) {
     const v = LETTER_VALUE[ch];
     if (v == null) continue;
-    letters.push({ char: ch, value: v });
-    if (VOWELS.has(ch)) vowels++;
+    const isVowel = VOWELS.has(ch);
+    letters.push({ char: ch, value: v, ordinal: LETTER_ORDINAL[ch]!, isVowel });
+    if (isVowel) vowels++;
     else consonants++;
   }
   const rawSum = letters.reduce((s, l) => s + l.value, 0) || 1;

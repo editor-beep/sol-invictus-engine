@@ -239,12 +239,10 @@ function InvokePage() {
               <p className="mt-3 text-sm text-parchment/70">{reading.sephira.meaning}</p>
               <Meta label="Pillar" value={reading.sephira.pillar} />
               <Meta label="Path no." value={String(reading.pathConnects.pathNumber)} />
-              {reading.pathConnects.to && (
-                <Meta
-                  label="Connecting"
-                  value={`${reading.sephira.name} → ${reading.pathConnects.to.name}`}
-                />
-              )}
+              <Meta
+                label="Path connects"
+                value={`${reading.pathConnects.a.name} → ${reading.pathConnects.b.name}`}
+              />
             </MiniCard>
 
             <MiniCard
@@ -266,11 +264,21 @@ function InvokePage() {
             <div className="flex flex-wrap items-baseline gap-2 text-2xl text-parchment">
               {reading.numerology.letters.map((l, i) => (
                 <span key={i} className="flex flex-col items-center">
-                  <span className="font-display uppercase">{l.char}</span>
-                  <span className="text-xs text-gold/70">{l.value}</span>
+                  <span
+                    className={`font-display uppercase ${l.isVowel ? "text-gold" : "text-parchment"}`}
+                    title={l.isVowel ? "vowel" : "consonant"}
+                  >
+                    {l.char}
+                  </span>
+                  <span className={`text-xs ${l.isVowel ? "text-gold/60" : "text-parchment/50"}`}>
+                    {l.value}
+                  </span>
                 </span>
               ))}
             </div>
+            <p className="mt-3 text-xs text-parchment/40 tracking-wider">
+              <span className="text-gold/70">Gold</span> = vowel · drives chakra selection
+            </p>
             <p className="mt-6 font-display text-lg text-parchment/80">
               {reading.numerology.reductionSteps.join(" → ")}{" "}
               <span className="text-gold text-2xl">= {reading.numerology.root}</span>

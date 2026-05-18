@@ -28,7 +28,35 @@ export function sephiraForIntention(letterCount: number, root: number): Sephira 
   return SEPHIROTH[n - 1];
 }
 
-// A connecting path 11..32 — derive from intention length and root.
-export function pathForIntention(letterCount: number, root: number): number {
-  return 11 + ((letterCount * 7 + root * 3) % 22);
+// The 22 paths (11-32) each connect a fixed pair of sephiroth.
+// Endpoints listed as [upper sephira number, lower sephira number].
+// Source: Golden Dawn / Regardie, "The Tree of Life."
+export const PATH_ENDPOINTS: Record<number, [number, number]> = {
+  11: [1, 2],   // Kether   – Chokmah    (Fool / Aleph)
+  12: [1, 3],   // Kether   – Binah      (Magician / Beth)
+  13: [1, 6],   // Kether   – Tiphareth  (High Priestess / Gimel)
+  14: [2, 3],   // Chokmah  – Binah      (Empress / Daleth)
+  15: [2, 6],   // Chokmah  – Tiphareth  (Emperor / Heh)
+  16: [2, 4],   // Chokmah  – Chesed     (Hierophant / Vav)
+  17: [3, 6],   // Binah    – Tiphareth  (Lovers / Zayin)
+  18: [3, 5],   // Binah    – Geburah    (Chariot / Cheth)
+  19: [4, 5],   // Chesed   – Geburah    (Strength / Teth)
+  20: [4, 6],   // Chesed   – Tiphareth  (Hermit / Yod)
+  21: [4, 7],   // Chesed   – Netzach    (Wheel / Kaph)
+  22: [5, 6],   // Geburah  – Tiphareth  (Justice / Lamed)
+  23: [5, 8],   // Geburah  – Hod        (Hanged Man / Mem)
+  24: [6, 7],   // Tiphareth– Netzach    (Death / Nun)
+  25: [6, 9],   // Tiphareth– Yesod      (Temperance / Samekh)
+  26: [6, 8],   // Tiphareth– Hod        (Devil / Ayin)
+  27: [7, 8],   // Netzach  – Hod        (Tower / Peh)
+  28: [7, 9],   // Netzach  – Yesod      (Star / Tzaddi)
+  29: [7, 10],  // Netzach  – Malkuth    (Moon / Qoph)
+  30: [8, 9],   // Hod      – Yesod      (Sun / Resh)
+  31: [8, 10],  // Hod      – Malkuth    (Judgement / Shin)
+  32: [9, 10],  // Yesod    – Malkuth    (World / Tav)
+};
+
+export function sephiraEndpointsForPath(pathNumber: number): { a: Sephira; b: Sephira } {
+  const [ai, bi] = PATH_ENDPOINTS[pathNumber] ?? [1, 10];
+  return { a: SEPHIROTH[ai - 1]!, b: SEPHIROTH[bi - 1]! };
 }
