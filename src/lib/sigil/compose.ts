@@ -4,7 +4,7 @@ import { analyzeIntention, toSingleDigit } from "./numerology";
 import { planetForRoot, planetOfDay, planetOfHour, type Planet } from "./planetary";
 import { getKamea, traceOnKamea } from "./kamea";
 import { drawTarot, type TarotCard } from "./tarot";
-import { sephiraForIntention, pathForIntention, SEPHIROTH, type Sephira } from "./tree-of-life";
+import { sephiraForIntention, sephiraEndpointsForPath, type Sephira } from "./tree-of-life";
 import { chakraForVowelRatio, type Chakra } from "./chakra";
 import { PLANETARY_SEALS, ringGlyphFor } from "./seals";
 
@@ -17,7 +17,7 @@ export type Reading = {
   hourPlanet: Planet;
   tarot: TarotCard;
   sephira: Sephira;
-  pathConnects: { from: Sephira; to: Sephira | null; pathNumber: number };
+  pathConnects: { a: Sephira; b: Sephira; pathNumber: number };
   chakra: Chakra;
   // Geometry for the SVG sigil
   sigil: {
@@ -50,15 +50,16 @@ export function composeReading(rawIntention: string, now = new Date()): Reading 
   const hourPlanet = planetOfHour(now);
   const tarot = drawTarot(intention, numerology.root);
   const sephira = sephiraForIntention(numerology.letterCount, numerology.root);
-  const pathNumber = pathForIntention(numerology.letterCount, numerology.root);
-  // The path "connects" sephira → another sephira derived from numerology.
-  const otherIdx = ((sephira.number + numerology.root) % 10);
-  const otherSephira = SEPHIROTH[otherIdx] ?? null;
+  // The tarot card IS its Tree of Life path — use that as the canonical path number.
+  const pathNumber = tarot.path;
+  const pathEndpoints = sephiraEndpointsForPath(pathNumber);
   const chakra = chakraForVowelRatio(numerology.vowelRatio);
 
   const kamea = getKamea(planet.key);
-  const letterValues = numerology.letters.map((l) => l.value);
-  const tracePoints = traceOnKamea(kamea, letterValues);
+  // Use ordinal values (A=1..Z=26) so the trace spans the full kamea range,
+  // not just the first 9 cells.
+  const ordinalValues = numerology.letters.map((l) => l.ordinal);
+  const tracePoints = traceOnKamea(kamea, ordinalValues);
 
   const seal = PLANETARY_SEALS[planet.key];
   const seed = toSingleDigit(numerology.rawSum);
@@ -77,7 +78,7 @@ export function composeReading(rawIntention: string, now = new Date()): Reading 
     hourPlanet,
     tarot,
     sephira,
-    pathConnects: { from: sephira, to: otherSephira, pathNumber },
+    pathConnects: { a: pathEndpoints.a, b: pathEndpoints.b, pathNumber },
     chakra,
     sigil: {
       kameaOrder: kamea.order,
