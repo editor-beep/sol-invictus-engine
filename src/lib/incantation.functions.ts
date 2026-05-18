@@ -66,6 +66,7 @@ Return:
         },
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
+          temperature: 1.0,
           messages: [
             { role: "system", content: system },
             { role: "user", content: user },
