@@ -123,7 +123,7 @@ export function planetForRoot(root: number): Planet {
 }
 
 // Planetary day-of-week (Chaldean). 0=Sun..6=Sat
-const DOW_TO_PLANET: Record<number, PlanetKey> = {
+export const DOW_TO_PLANET: Record<number, PlanetKey> = {
   0: "sun",
   1: "moon",
   2: "mars",
@@ -138,7 +138,9 @@ export function planetOfDay(date = new Date()): Planet {
 }
 
 // Chaldean order for planetary hours.
-const CHALDEAN: PlanetKey[] = ["saturn", "jupiter", "mars", "sun", "venus", "mercury", "moon"];
+export const CHALDEAN: PlanetKey[] = ["saturn", "jupiter", "mars", "sun", "venus", "mercury", "moon"];
+
+export const DOW_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 // Classical planetary hours run from sunrise to sunset, not midnight.
 // This uses equal civil hours as an approximation — accurate to within 1-2 hours
@@ -148,5 +150,13 @@ export function planetOfHour(date = new Date()): Planet {
   const startIdx = CHALDEAN.indexOf(dayRuler);
   const hour = date.getHours();
   const idx = (startIdx + hour) % 7;
+  return PLANETS[CHALDEAN[idx]];
+}
+
+// Planet ruling hour `hourIndex` (0–23) for the given date's day-of-week.
+export function planetOfHourN(date: Date, hourIndex: number): Planet {
+  const dayRuler = DOW_TO_PLANET[date.getDay()];
+  const startIdx = CHALDEAN.indexOf(dayRuler);
+  const idx = (startIdx + hourIndex) % 7;
   return PLANETS[CHALDEAN[idx]];
 }
