@@ -6,6 +6,7 @@ import { composeReading } from "@/lib/sigil/compose";
 import { SigilSVG } from "@/lib/sigil/SigilSVG";
 import { generateIncantation, type IncantationOutput } from "@/lib/incantation.functions";
 import { saveToGrimoire } from "@/lib/grimoire";
+import { buildCipherFromReading, applyLetterRules } from "@/lib/sigil/letter-substitution";
 
 const Search = z.object({ q: z.string().min(1).max(300) });
 
@@ -304,6 +305,8 @@ function InvokePage() {
               hour of <span className="text-parchment/90">{reading.planet.name}</span>.
             </p>
           </Card>
+
+          <CipherCard reading={reading} />
         </div>
       </div>
 
@@ -316,6 +319,65 @@ function InvokePage() {
         </Link>
       </div>
     </section>
+  );
+}
+
+function CipherCard({ reading }: { reading: ReturnType<typeof composeReading> }) {
+  const rules = buildCipherFromReading(reading);
+  const deeperName = applyLetterRules(reading.intention, rules);
+  const changed = deeperName !== reading.intention;
+
+  return (
+    <Card label="Cipher Reading">
+      <p className="mb-5 text-sm text-parchment/60 leading-relaxed">
+        Rules derived from your numerology root ({reading.numerology.root}), planet (
+        {reading.planet.name}), and chakra ({reading.chakra.english}):
+      </p>
+      <ol className="mb-6 space-y-2">
+        {rules.map((rule, i) => (
+          <li key={i} className="flex items-center gap-3 text-sm">
+            <span className="text-parchment/30 w-4 text-xs">{i + 1}.</span>
+            <span className="font-mono tracking-widest">
+              <span className="text-gold">{rule.from}</span>
+              <span className="text-parchment/40 mx-2">→</span>
+              <span className="text-gold">{rule.to}</span>
+              {rule.nthOnly && (
+                <span className="ml-3 text-xs text-parchment/40">every {rule.nthOnly}</span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ol>
+      <div className="border-t border-gold/10 pt-5">
+        <span className="text-xs tracking-widest uppercase text-parchment/40">The Deeper Name</span>
+        <p className="mt-2 font-display text-xl text-parchment italic">
+          {changed ? (
+            deeperName.split("").map((char, i) => (
+              <span
+                key={i}
+                className={char !== reading.intention[i] ? "text-gold" : ""}
+              >
+                {char}
+              </span>
+            ))
+          ) : (
+            <span className="text-parchment/50">{deeperName}</span>
+          )}
+        </p>
+        {!changed && (
+          <p className="mt-2 text-xs text-parchment/30 italic">
+            No letters in this intention matched the derived rules.
+          </p>
+        )}
+      </div>
+      <p className="mt-5 text-xs text-parchment/30">
+        Take these rules to the{" "}
+        <a href="/cipher" className="text-gold/60 hover:text-gold underline-offset-2 underline">
+          Cipher
+        </a>{" "}
+        to explore further.
+      </p>
+    </Card>
   );
 }
 
