@@ -10,14 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as InvokeRouteImport } from './routes/invoke'
+import { Route as HoursRouteImport } from './routes/hours'
 import { Route as GrimoireRouteImport } from './routes/grimoire'
 import { Route as CorrespondencesRouteImport } from './routes/correspondences'
+import { Route as CipherRouteImport } from './routes/cipher'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
 const InvokeRoute = InvokeRouteImport.update({
   id: '/invoke',
   path: '/invoke',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HoursRoute = HoursRouteImport.update({
+  id: '/hours',
+  path: '/hours',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GrimoireRoute = GrimoireRouteImport.update({
@@ -28,6 +35,11 @@ const GrimoireRoute = GrimoireRouteImport.update({
 const CorrespondencesRoute = CorrespondencesRouteImport.update({
   id: '/correspondences',
   path: '/correspondences',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CipherRoute = CipherRouteImport.update({
+  id: '/cipher',
+  path: '/cipher',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -44,38 +56,46 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cipher': typeof CipherRoute
   '/correspondences': typeof CorrespondencesRoute
   '/grimoire': typeof GrimoireRoute
+  '/hours': typeof HoursRoute
   '/invoke': typeof InvokeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cipher': typeof CipherRoute
   '/correspondences': typeof CorrespondencesRoute
   '/grimoire': typeof GrimoireRoute
+  '/hours': typeof HoursRoute
   '/invoke': typeof InvokeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cipher': typeof CipherRoute
   '/correspondences': typeof CorrespondencesRoute
   '/grimoire': typeof GrimoireRoute
+  '/hours': typeof HoursRoute
   '/invoke': typeof InvokeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/correspondences' | '/grimoire' | '/invoke'
+  fullPaths: '/' | '/about' | '/cipher' | '/correspondences' | '/grimoire' | '/hours' | '/invoke'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/correspondences' | '/grimoire' | '/invoke'
-  id: '__root__' | '/' | '/about' | '/correspondences' | '/grimoire' | '/invoke'
+  to: '/' | '/about' | '/cipher' | '/correspondences' | '/grimoire' | '/hours' | '/invoke'
+  id: '__root__' | '/' | '/about' | '/cipher' | '/correspondences' | '/grimoire' | '/hours' | '/invoke'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  CipherRoute: typeof CipherRoute
   CorrespondencesRoute: typeof CorrespondencesRoute
   GrimoireRoute: typeof GrimoireRoute
+  HoursRoute: typeof HoursRoute
   InvokeRoute: typeof InvokeRoute
 }
 
@@ -86,6 +106,13 @@ declare module '@tanstack/react-router' {
       path: '/invoke'
       fullPath: '/invoke'
       preLoaderRoute: typeof InvokeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hours': {
+      id: '/hours'
+      path: '/hours'
+      fullPath: '/hours'
+      preLoaderRoute: typeof HoursRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/grimoire': {
@@ -100,6 +127,13 @@ declare module '@tanstack/react-router' {
       path: '/correspondences'
       fullPath: '/correspondences'
       preLoaderRoute: typeof CorrespondencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cipher': {
+      id: '/cipher'
+      path: '/cipher'
+      fullPath: '/cipher'
+      preLoaderRoute: typeof CipherRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -122,8 +156,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  CipherRoute: CipherRoute,
   CorrespondencesRoute: CorrespondencesRoute,
   GrimoireRoute: GrimoireRoute,
+  HoursRoute: HoursRoute,
   InvokeRoute: InvokeRoute,
 }
 export const routeTree = rootRouteImport
