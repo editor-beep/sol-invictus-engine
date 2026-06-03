@@ -8,6 +8,10 @@ type Props = {
   className?: string;
   id?: string;
   svgRef?: RefObject<SVGSVGElement | null>;
+  // When set, paints an opaque background rect filling the viewBox. Used by the
+  // shareable image endpoint so the exported file isn't transparent; the in-page
+  // sigil leaves this undefined and stays transparent over the starfield.
+  backgroundColor?: string;
 };
 
 const CX = 200;
@@ -17,7 +21,15 @@ const INNER_R = 150;
 const KAMEA_SIZE = 180;
 
 // Renders the full sigil as an SVG. 400x400 viewBox; centered at (200, 200).
-export function SigilSVG({ reading, size = 420, animate = true, className, id, svgRef }: Props) {
+export function SigilSVG({
+  reading,
+  size = 420,
+  animate = true,
+  className,
+  id,
+  svgRef,
+  backgroundColor,
+}: Props) {
   const { sigil } = reading;
   const cx = CX;
   const cy = CY;
@@ -52,7 +64,12 @@ export function SigilSVG({ reading, size = 420, animate = true, className, id, s
   for (let i = 0; i <= sigil.kameaOrder; i++) {
     const offset = kameaOriginX + i * cell;
     gridLines.push({ x1: offset, y1: kameaOriginY, x2: offset, y2: kameaOriginY + kameaSize });
-    gridLines.push({ x1: kameaOriginX, y1: kameaOriginY + i * cell, x2: kameaOriginX + kameaSize, y2: kameaOriginY + i * cell });
+    gridLines.push({
+      x1: kameaOriginX,
+      y1: kameaOriginY + i * cell,
+      x2: kameaOriginX + kameaSize,
+      y2: kameaOriginY + i * cell,
+    });
   }
 
   return (
@@ -68,6 +85,7 @@ export function SigilSVG({ reading, size = 420, animate = true, className, id, s
       aria-label={`Sigil for "${reading.intention}" — ${reading.planet.name}, ${reading.tarot.name}, ${reading.sephira.name}`}
     >
       <title>Sigil for "{reading.intention}"</title>
+      {backgroundColor && <rect x={0} y={0} width={400} height={400} fill={backgroundColor} />}
       <defs>
         <radialGradient id={`bg-${reading.hash}`} cx="50%" cy="50%" r="55%">
           <stop offset="0%" stopColor={sigil.sephiraColor} stopOpacity="0.18" />
@@ -110,7 +128,14 @@ export function SigilSVG({ reading, size = 420, animate = true, className, id, s
         {/* Outer rings */}
         <g className="ring spin-slow" style={{ transformOrigin: "200px 200px" }}>
           <circle className="ring" cx={cx} cy={cy} r={outerR} strokeWidth={1} opacity={0.7} />
-          <circle className="ring" cx={cx} cy={cy} r={outerR - 12} strokeWidth={0.6} opacity={0.45} />
+          <circle
+            className="ring"
+            cx={cx}
+            cy={cy}
+            r={outerR - 12}
+            strokeWidth={0.6}
+            opacity={0.45}
+          />
           {/* Ring glyphs */}
           {sigil.ringGlyphs.map((g, i) => {
             const r = outerR - 6;
@@ -149,22 +174,12 @@ export function SigilSVG({ reading, size = 420, animate = true, className, id, s
           strokeWidth={1.6}
           filter={`url(#glow-strong-${reading.hash})`}
         >
-          {points.length > 1 && (
-            <polyline points={polylinePts} fill="none" />
-          )}
+          {points.length > 1 && <polyline points={polylinePts} fill="none" />}
           {/* Head mark — small open circle at start */}
-          {first && (
-            <circle cx={first.x} cy={first.y} r={4} fill="none" strokeWidth={1.5} />
-          )}
+          {first && <circle cx={first.x} cy={first.y} r={4} fill="none" strokeWidth={1.5} />}
           {/* Foot mark — short bar at end */}
           {last && (
-            <line
-              x1={last.x - 5}
-              y1={last.y}
-              x2={last.x + 5}
-              y2={last.y}
-              strokeWidth={1.5}
-            />
+            <line x1={last.x - 5} y1={last.y} x2={last.x + 5} y2={last.y} strokeWidth={1.5} />
           )}
           {/* Turn dots at intermediate vertices */}
           {points.slice(1, -1).map((p, i) => (

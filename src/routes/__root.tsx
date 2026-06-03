@@ -11,6 +11,7 @@ import {
 import appCss from "../styles.css?url";
 import { Starfield } from "@/components/Starfield";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -121,6 +122,7 @@ function RootComponent() {
         </main>
         <SiteFooter />
       </div>
+      <Toaster />
     </QueryClientProvider>
   );
 }

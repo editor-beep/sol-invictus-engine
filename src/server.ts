@@ -25,6 +25,34 @@ function brandedErrorResponse(): Response {
   });
 }
 
+// Renders the deterministic sigil for `?q=` as a standalone SVG image. Returns null
+// for any path other than the image endpoint so normal SSR proceeds untouched. A sigil
+// is a pure function of its intention, so the result is immutable and safely cacheable.
+async function maybeRenderSigilImage(request: Request): Promise<Response | null> {
+  const url = new URL(request.url);
+  if (url.pathname !== "/og/sigil.svg") return null;
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return new Response("Method Not Allowed", { status: 405 });
+  }
+  const q = url.searchParams.get("q")?.trim();
+  if (!q) return new Response("Missing intention", { status: 400 });
+
+  try {
+    const { renderSigilDocument } = await import("./lib/sigil/render-svg");
+    const svg = renderSigilDocument(q);
+    return new Response(svg, {
+      status: 200,
+      headers: {
+        "content-type": "image/svg+xml; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return brandedErrorResponse();
+  }
+}
+
 function isCatastrophicSsrErrorBody(body: string, responseStatus: number): boolean {
   let payload: unknown;
   try {
@@ -69,6 +97,9 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const sigilImage = await maybeRenderSigilImage(request);
+      if (sigilImage) return sigilImage;
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

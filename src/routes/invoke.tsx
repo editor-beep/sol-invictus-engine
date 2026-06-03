@@ -7,6 +7,7 @@ import { SigilSVG } from "@/lib/sigil/SigilSVG";
 import { generateIncantation, type IncantationOutput } from "@/lib/incantation.functions";
 import { saveToGrimoire } from "@/lib/grimoire";
 import { buildCipherFromReading, applyLetterRules } from "@/lib/sigil/letter-substitution";
+import { ShareButton } from "@/components/ShareButton";
 
 const Search = z.object({ q: z.string().min(1).max(300) });
 
@@ -161,7 +162,13 @@ function InvokePage() {
           <p className="mt-2 text-center text-xs tracking-[0.3em] uppercase text-parchment/50">
             Seal {reading.hash}
           </p>
-          <div className="mt-6 flex gap-2">
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <ShareButton
+              intention={reading.intention}
+              planet={reading.planet.name}
+              tarot={reading.tarot.name}
+              sephira={reading.sephira.name}
+            />
             <button
               onClick={downloadSVG}
               className="rounded-sm border border-gold/40 bg-gold/5 px-4 py-2 text-xs tracking-widest uppercase text-gold hover:bg-gold/15"
