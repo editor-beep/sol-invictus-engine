@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TodayRouteImport } from './routes/today'
+import { Route as SealRouteImport } from './routes/seal'
 import { Route as InvokeRouteImport } from './routes/invoke'
 import { Route as HoursRouteImport } from './routes/hours'
 import { Route as GrimoireRouteImport } from './routes/grimoire'
@@ -21,6 +22,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const TodayRoute = TodayRouteImport.update({
   id: '/today',
   path: '/today',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SealRoute = SealRouteImport.update({
+  id: '/seal',
+  path: '/seal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvokeRoute = InvokeRouteImport.update({
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/grimoire': typeof GrimoireRoute
   '/hours': typeof HoursRoute
   '/invoke': typeof InvokeRoute
+  '/seal': typeof SealRoute
   '/today': typeof TodayRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/grimoire': typeof GrimoireRoute
   '/hours': typeof HoursRoute
   '/invoke': typeof InvokeRoute
+  '/seal': typeof SealRoute
   '/today': typeof TodayRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/grimoire': typeof GrimoireRoute
   '/hours': typeof HoursRoute
   '/invoke': typeof InvokeRoute
+  '/seal': typeof SealRoute
   '/today': typeof TodayRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/grimoire'
     | '/hours'
     | '/invoke'
+    | '/seal'
     | '/today'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/grimoire'
     | '/hours'
     | '/invoke'
+    | '/seal'
     | '/today'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/grimoire'
     | '/hours'
     | '/invoke'
+    | '/seal'
     | '/today'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   GrimoireRoute: typeof GrimoireRoute
   HoursRoute: typeof HoursRoute
   InvokeRoute: typeof InvokeRoute
+  SealRoute: typeof SealRoute
   TodayRoute: typeof TodayRoute
 }
 
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/today'
       fullPath: '/today'
       preLoaderRoute: typeof TodayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seal': {
+      id: '/seal'
+      path: '/seal'
+      fullPath: '/seal'
+      preLoaderRoute: typeof SealRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invoke': {
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   GrimoireRoute: GrimoireRoute,
   HoursRoute: HoursRoute,
   InvokeRoute: InvokeRoute,
+  SealRoute: SealRoute,
   TodayRoute: TodayRoute,
 }
 export const routeTree = rootRouteImport
