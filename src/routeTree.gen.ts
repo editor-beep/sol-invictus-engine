@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TodayRouteImport } from './routes/today'
 import { Route as InvokeRouteImport } from './routes/invoke'
 import { Route as HoursRouteImport } from './routes/hours'
 import { Route as GrimoireRouteImport } from './routes/grimoire'
@@ -17,6 +18,11 @@ import { Route as CipherRouteImport } from './routes/cipher'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TodayRoute = TodayRouteImport.update({
+  id: '/today',
+  path: '/today',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InvokeRoute = InvokeRouteImport.update({
   id: '/invoke',
   path: '/invoke',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/grimoire': typeof GrimoireRoute
   '/hours': typeof HoursRoute
   '/invoke': typeof InvokeRoute
+  '/today': typeof TodayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/grimoire': typeof GrimoireRoute
   '/hours': typeof HoursRoute
   '/invoke': typeof InvokeRoute
+  '/today': typeof TodayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,13 +88,39 @@ export interface FileRoutesById {
   '/grimoire': typeof GrimoireRoute
   '/hours': typeof HoursRoute
   '/invoke': typeof InvokeRoute
+  '/today': typeof TodayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/cipher' | '/correspondences' | '/grimoire' | '/hours' | '/invoke'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/cipher'
+    | '/correspondences'
+    | '/grimoire'
+    | '/hours'
+    | '/invoke'
+    | '/today'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/cipher' | '/correspondences' | '/grimoire' | '/hours' | '/invoke'
-  id: '__root__' | '/' | '/about' | '/cipher' | '/correspondences' | '/grimoire' | '/hours' | '/invoke'
+  to:
+    | '/'
+    | '/about'
+    | '/cipher'
+    | '/correspondences'
+    | '/grimoire'
+    | '/hours'
+    | '/invoke'
+    | '/today'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/cipher'
+    | '/correspondences'
+    | '/grimoire'
+    | '/hours'
+    | '/invoke'
+    | '/today'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,10 +131,18 @@ export interface RootRouteChildren {
   GrimoireRoute: typeof GrimoireRoute
   HoursRoute: typeof HoursRoute
   InvokeRoute: typeof InvokeRoute
+  TodayRoute: typeof TodayRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/today': {
+      id: '/today'
+      path: '/today'
+      fullPath: '/today'
+      preLoaderRoute: typeof TodayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/invoke': {
       id: '/invoke'
       path: '/invoke'
@@ -161,7 +203,18 @@ const rootRouteChildren: RootRouteChildren = {
   GrimoireRoute: GrimoireRoute,
   HoursRoute: HoursRoute,
   InvokeRoute: InvokeRoute,
+  TodayRoute: TodayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
