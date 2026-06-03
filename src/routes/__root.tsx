@@ -12,6 +12,7 @@ import appCss from "../styles.css?url";
 import { Starfield } from "@/components/Starfield";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { Toaster } from "@/components/ui/sonner";
+import { NudgeBanner } from "@/components/NudgeBanner";
 
 function NotFoundComponent() {
   return (
@@ -117,6 +118,7 @@ function RootComponent() {
       <Starfield />
       <div className="relative z-10 flex min-h-screen flex-col">
         <SiteHeader />
+        <NudgeBanner />
         <main className="flex-1">
           <Outlet />
         </main>
