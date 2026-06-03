@@ -1,13 +1,39 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { loadStreak } from "@/lib/streak";
 
 const NAV = [
   { to: "/", label: "Altar" },
+  { to: "/today", label: "Today" },
   { to: "/hours", label: "Hours" },
   { to: "/grimoire", label: "Grimoire" },
   { to: "/correspondences", label: "Correspondences" },
   { to: "/cipher", label: "Cipher" },
   { to: "/about", label: "Codex" },
 ] as const;
+
+// The streak lives in localStorage, so it can only be read after hydration —
+// render nothing on the server pass to avoid a mismatch.
+function StreakBadge() {
+  const [current, setCurrent] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCurrent(loadStreak().current);
+  }, []);
+
+  if (!current) return null;
+
+  return (
+    <Link
+      to="/today"
+      title="Your days at the altar"
+      className="hidden sm:inline-flex items-center gap-1.5 rounded-sm border border-gold/30 bg-gold/5 px-3 py-1 text-xs tracking-widest text-gold hover:bg-gold/10"
+    >
+      <span className="flicker">✦</span>
+      {current}
+    </Link>
+  );
+}
 
 export function SiteHeader() {
   return (
@@ -19,19 +45,22 @@ export function SiteHeader() {
             The Invocation Engine
           </span>
         </Link>
-        <nav className="hidden md:flex items-center gap-7 text-sm tracking-widest uppercase text-parchment/70">
-          {NAV.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              className="hover:text-gold transition-colors"
-              activeProps={{ className: "text-gold" }}
-              activeOptions={{ exact: n.to === "/" }}
-            >
-              {n.label}
-            </Link>
-          ))}
-        </nav>
+        <div className="flex items-center gap-5">
+          <nav className="hidden md:flex items-center gap-7 text-sm tracking-widest uppercase text-parchment/70">
+            {NAV.map((n) => (
+              <Link
+                key={n.to}
+                to={n.to}
+                className="hover:text-gold transition-colors"
+                activeProps={{ className: "text-gold" }}
+                activeOptions={{ exact: n.to === "/" }}
+              >
+                {n.label}
+              </Link>
+            ))}
+          </nav>
+          <StreakBadge />
+        </div>
       </div>
     </header>
   );
