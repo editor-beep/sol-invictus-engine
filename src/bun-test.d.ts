@@ -4,11 +4,13 @@
 declare module "bun:test" {
   interface Matchers {
     toBe(expected: unknown): void;
+    toBeNull(): void;
     toBeGreaterThan(expected: number): void;
     toBeGreaterThanOrEqual(expected: number): void;
     toBeLessThan(expected: number): void;
     toBeLessThanOrEqual(expected: number): void;
     toContain(expected: unknown): void;
+    readonly not: Matchers;
   }
   export function describe(name: string, fn: () => void): void;
   export function test(name: string, fn: () => void | Promise<void>): void;
